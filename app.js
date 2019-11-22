@@ -40,6 +40,7 @@ app.post('/api/v1/signin', model.signIn);
 app.post('/api/v1/gifs', auth, multerUploads, model.postGif);
 app.post('/api/v1/articles', auth, model.createArticle);
 app.patch('/api/v1/articles/:id', auth, model.editArticle);
-app.delete('/api/v1/articles/:id',auth, model.deleteArticle);
+app.delete('/api/v1/articles/:id', auth, model.deleteArticle);
+app.delete('/api/v1/gifs/:id', auth, model.deleteGif);
 
 module.exports = app;

@@ -193,8 +193,8 @@ const editArticle = (request, response) => {
 };
 
 const deleteArticle = (request, response) => {
-  let articleId = parseInt(request.params.id);
-  let { employee_id } = request.body;
+  const articleId = parseInt(request.params.id);
+  const { employee_id } = request.body;
 
   pool.query('DELETE FROM Article WHERE article_id = $1 AND employee_id = $2',
     [articleId, employee_id], (error, results) => {
@@ -215,6 +215,29 @@ const deleteArticle = (request, response) => {
     });
 };
 
+const deleteGif = (request, response) => {
+  let articleId = parseInt(request.params.id);
+  let { employee_id } = request.body;
+
+  pool.query('DELETE FROM Gifs WHERE gif_id = $1 AND employee_id = $2',
+    [articleId, employee_id], (error, results) => {
+      if (error) {
+        response.status(401).json({ status: 'error', error: error.detail });
+      }
+
+      if (results.rowCount) {
+        response.status(200).json({
+          status: 'success',
+          data: {
+            message: 'gif post successfully deleted',
+          },
+        });
+      } else {
+        response.status(401).json({ status: 'error' });
+      }
+    });
+};
+
 module.exports = {
   createUser,
   signIn,
@@ -222,4 +245,5 @@ module.exports = {
   createArticle,
   editArticle,
   deleteArticle,
+  deleteGif,
 };
