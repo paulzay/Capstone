@@ -39,4 +39,6 @@ app.post('/api/v1/auth/create-user', auth, model.createUser);
 app.post('/api/v1/signin', model.signIn);
 app.post('/api/v1/gifs', auth, multerUploads, model.postGif);
 app.post('/api/v1/articles', auth, model.createArticle);
+app.patch('/api/v1/articles/:id', auth, model.editArticle);
+
 module.exports = app;

@@ -151,8 +151,8 @@ const createArticle = (request, response) => {
         (error, results, fields) => {
           if (error) throw error;
 
-          let {article_id} = results.rows[0];
-          let now = new Date();
+          const { article_id } = results.rows[0];
+          const now = new Date();
 
           response.status(201).json({
             status: 'success',
@@ -166,9 +166,36 @@ const createArticle = (request, response) => {
         });
     });
 };
+
+const editArticle = (request, response) => {
+  const articleId = parseInt(request.params.id);
+  const { title, article, employee_id } = request.body;
+
+  pool.query('UPDATE Article SET title = $1, article = $2 WHERE article_id = $3 AND employee_id = $4',
+    [title, article, articleId, employee_id], (error, results) => {
+      if (error) {
+        response.status(401).json({ status: 'error', error: error.detail });
+      }
+
+      if (results.rowCount) {
+        response.status(200).json({
+          status: 'success',
+          data: {
+            message: 'Article successfully updated',
+            title,
+            article,
+          },
+        });
+      } else {
+        response.status(401).json({ status: 'error' });
+      }
+    });
+};
+
 module.exports = {
   createUser,
   signIn,
   postGif,
   createArticle,
+  editArticle,
 };
