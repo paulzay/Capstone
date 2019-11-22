@@ -306,6 +306,15 @@ const gifComment = (request, response) => {
       }
     });
 };
+const getArtcles = (request, response) => {
+  pool.query('SELECT * FROM Article ORDER BY article_id DESC', (error, results) => {
+    if(error){
+      response.status(400).json({status:"error",error:error.detail});
+    }
+
+    response.status(200).json(results.rows);
+  });
+};
 
 
 module.exports = {
@@ -318,4 +327,5 @@ module.exports = {
   deleteGif,
   articleComment,
   gifComment,
+  getArtcles,
 };
