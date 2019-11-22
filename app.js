@@ -38,5 +38,5 @@ app.get('/', (req, res, next) => {
 app.post('/api/v1/auth/create-user', auth, model.createUser);
 app.post('/api/v1/signin', model.signIn);
 app.post('/api/v1/gifs', auth, multerUploads, model.postGif);
-
+app.post('/api/v1/articles', auth, model.createArticle);
 module.exports = app;

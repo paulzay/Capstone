@@ -134,9 +134,41 @@ const postGif = (request, response) => {
   });
 };
 
+const createArticle = (request, response) => {
+  const { title, article, employee_id } = request.body;
 
+
+  pool.query('INSERT INTO Article (title, article, employee_id) VALUES ($1, $2, $3)',
+    [title, article, employee_id], (error) => {
+      if (error) {
+        response.status(401).json({
+          status: 'error',
+          error: error.detail,
+        });
+      }
+
+      pool.query("select currval(pg_get_serial_sequence('Article','article_id')) as article_id",
+        (error, results, fields) => {
+          if (error) throw error;
+
+          let {article_id} = results.rows[0];
+          let now = new Date();
+
+          response.status(201).json({
+            status: 'success',
+            data: {
+              message: 'Article successfully posted',
+              articleId: article_id,
+              createdOn: now,
+              title,
+            },
+          });
+        });
+    });
+};
 module.exports = {
   createUser,
   signIn,
   postGif,
+  createArticle,
 };
