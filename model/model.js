@@ -216,8 +216,8 @@ const deleteArticle = (request, response) => {
 };
 
 const deleteGif = (request, response) => {
-  let articleId = parseInt(request.params.id);
-  let { employee_id } = request.body;
+  const articleId = parseInt(request.params.id);
+  const { employee_id } = request.body;
 
   pool.query('DELETE FROM Gifs WHERE gif_id = $1 AND employee_id = $2',
     [articleId, employee_id], (error, results) => {
@@ -238,6 +238,41 @@ const deleteGif = (request, response) => {
     });
 };
 
+const articleComment = (request, response) => {
+  const articleId = parseInt(request.params.id);
+  const { comment, employee_id } = request.body;
+
+  pool.query('SELECT title,article FROM Article WHERE article_id = $1',
+    [articleId], (error, results) => {
+      if (error) {
+        response.status(400).json({ status: 'error', error: error.detail });
+      }
+
+      if (results.rows[0]) {
+        pool.query('INSERT INTO CommentArticle (comment,employee_id,article_id) VALUES  ($1, $2,$3)',
+          [comment, employee_id, articleId], (error) => {
+            if (error) {
+              response.status(401).json({ status: 'error', error: error.detail });
+            }
+
+            let now = new Date();
+            response.status(201).json({
+              status: 'success',
+              data: {
+                message: 'Comment successfully created',
+                createdOn: now,
+                articleTitle: results.rows[0].title,
+                article: results.rows[0].article,
+                comment,
+              },
+            });
+          });
+      } else {
+        response.status(401).json({ status: 'error' });
+      }
+    });
+};
+
 module.exports = {
   createUser,
   signIn,
@@ -246,4 +281,5 @@ module.exports = {
   editArticle,
   deleteArticle,
   deleteGif,
+  articleComment,
 };
