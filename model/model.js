@@ -329,7 +329,7 @@ const getArticle = (request, response) => {
 const searchCategory = (request, response) => {
   const article = request.query.category;
 
-  pool.query('SELECT * FROM Article WHERE title ILIKE $1 ORDER BY article_id DESC', [`${article }%`],
+  pool.query('SELECT * FROM Article WHERE title ILIKE $1 ORDER BY article_id DESC', [`${article}%`],
     (error, results) => {
       if (error) {
         response.status(401).json({ status: 'error', error: error.detail });
@@ -351,8 +351,8 @@ const flagArticle = (request, response) => {
       }
 
       if (results.rows[0]) {
-        let flag = results.rows[0].article;
-        let flag_title = results.rows[0].title;
+        const flag = results.rows[0].article;
+        const flag_title = results.rows[0].title;
 
         pool.query('INSERT INTO Flagged (comment,type,flag,flag_title,type_id,employee_id) VALUES ($1,$2,$3,$4,$5,$6)',
           [comment, type, flag, flag_title, articleId, employee_id], (error) => {
@@ -378,6 +378,45 @@ const flagArticle = (request, response) => {
     });
 };
 
+const deleteFlagged = (request, response) => {
+  const { type, type_id } = request.body;
+  if (type.toLowerCase() == 'article') {
+    pool.query('DELETE FROM Article WHERE id = $1', [type_id], (error, results) => {
+      if (error) {
+        response.status(401).json({ status: 'error', error: error.detail });
+      }
+
+      if (results.rowCount) {
+        response.status(200).json({
+          status: 'success',
+          data: {
+            message: 'Article successfully deleted',
+          },
+        });
+      } else {
+        response.status(401).json({ status: 'error' });
+      }
+    });
+  } else if (type.toLowerCase() == 'gif') {
+    pool.query('DELETE FROM Gifs WHERE gif_id = $1', [type_id], (error, results) => {
+      if (error) {
+        response.status(401).json({ status: 'error', error });
+      }
+
+      if (results.rowCount) {
+        response.status(200).json({
+          status: 'success',
+          data: {
+            message: 'gif post successfully deleted',
+          },
+        });
+      } else {
+        response.status(401).json({ status: 'error' });
+      }
+    });
+  }
+};
+
 module.exports = {
   createUser,
   signIn,
@@ -392,4 +431,5 @@ module.exports = {
   getArticle,
   searchCategory,
   flagArticle,
+  deleteFlagged,
 };

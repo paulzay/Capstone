@@ -48,5 +48,5 @@ app.get('/api/v1/articles', auth, model.getArtcles);
 app.get('/api/v1/articles/:id', auth, model.getArticle);
 app.get('/api/v1/articles/search', auth, model.searchCategory);
 app.post('/api/v1/articles/:id/flag', auth, model.flagArticle);
-
+app.delete('/api/v1/flag', auth, model.deleteFlagged);
 module.exports = app;
