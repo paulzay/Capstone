@@ -3,20 +3,18 @@ const bodyParser = require('body-parser');
 const { Client } = require('pg');
 const model = require('./model/model');
 const auth = require('./midll/auth');
-// const bycrypt = require('bcrypt');
-
-
-// const cors = require('cors');
-// const errorHandler = require('./_helpers/error-handler');
+const multer = require('./midll/multer');
+const config = require('./configs/cloudinaryConfig');
 
 const app = express();
 
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-// app.use(cors());
 
-
-// const model = require('./model/model');
+const { uploader } = config;
+const { cloudinaryConfig } = config;
+const { multerUploads } = multer;
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Origin', '*');
@@ -24,7 +22,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST ,PUT ,DELETE, PATCH, OPTIONS');
   next();
 });
-// const express = require('express');
+app.use('*', cloudinaryConfig);
 
 
 const connectionString = 'postgres://postgres:fay&zay27@localhost:5432/timwerk';
@@ -39,5 +37,6 @@ app.get('/', (req, res, next) => {
 
 app.post('/api/v1/auth/create-user', auth, model.createUser);
 app.post('/api/v1/signin', model.signIn);
+app.post('/api/v1/gifs', auth, multerUploads, model.postGif);
 
 module.exports = app;

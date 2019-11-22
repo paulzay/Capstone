@@ -2,6 +2,13 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require('../dbconfig');
+const config = require('../configs/cloudinaryConfig');
+const multer = require('../midll/multer');
+
+const { uploader } = config;
+const { cloudinaryConfig } = config;
+const { dataUri } = multer;
+const { multerUploads } = multer;
 
 
 const createUser = (request, response) => {
@@ -74,9 +81,9 @@ const signIn = (request, res, next) => {
             return res.status(401).json({ status: 'error', error: 'Invalid password' });
           }
 
-          let user_id = results.rows[0].employee_id;
+          const user_id = results.rows[0].employee_id;
 
-          let token = jwt.sign({ user_id }, 'JWT_TOKEN', { expiresIn: '24h' });
+          const token = jwt.sign({ user_id }, 'JWT_TOKEN', { expiresIn: '24h' });
 
 
           res.status(200).json({
@@ -91,8 +98,45 @@ const signIn = (request, res, next) => {
     });
 };
 
+const postGif = (request, response) => {
+  const file = dataUri(request).content;
+  const { title } = request.body;
+  const { employee_id } = request.body;
+
+  return uploader.upload(file).then((result) => {
+    const image = result.url;
+
+    pool.query('INSERT INTO Gifs (imageUrl ,title,employee_id) VALUES ($1, $2,$3)',
+      [image, title, employee_id], (error) => {
+        if (error) {
+          response.status(401).json({ status: 'error', error: error.detail });
+        }
+
+        pool.query("select currval(pg_get_serial_sequence('Gifs','gif_id')) as gif_id",
+          (error, results, fields) => {
+            if (error) throw error;
+
+            const { gif_id } = results.rows[0];
+            const now = new Date();
+
+            response.status(201).json({
+              status: 'success',
+              data: {
+                gifId: gif_id,
+                message: 'GIF image successfully posted',
+                createdOn: now,
+                title,
+                imageUrl: image,
+              },
+            });
+          });
+      });
+  });
+};
+
 
 module.exports = {
   createUser,
   signIn,
+  postGif,
 };
