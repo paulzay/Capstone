@@ -326,6 +326,19 @@ const getArticle = (request, response) => {
   });
 };
 
+const searchCategory = (request, response) => {
+  const article = request.query.category;
+
+  pool.query('SELECT * FROM Article WHERE title ILIKE $1 ORDER BY article_id DESC', [`${article  }%`],
+    (error, results) => {
+      if (error) {
+        response.status(401).json({ status: 'error', error: error.detail });
+      }
+
+      response.status(200).json(results.rows);
+    });
+};
+
 module.exports = {
   createUser,
   signIn,
@@ -338,4 +351,5 @@ module.exports = {
   gifComment,
   getArtcles,
   getArticle,
+  searchCategory
 };
