@@ -290,7 +290,7 @@ const gifComment = (request, response) => {
               response.status(401).json({ status: 'error', error: error.detail });
             }
 
-            let now = new Date();
+            const now = new Date();
             response.status(201).json({
               status: 'success',
               data: {
@@ -308,14 +308,23 @@ const gifComment = (request, response) => {
 };
 const getArtcles = (request, response) => {
   pool.query('SELECT * FROM Article ORDER BY article_id DESC', (error, results) => {
-    if(error){
-      response.status(400).json({status:"error",error:error.detail});
+    if (error) {
+      response.status(400).json({ status: 'error', error: error.detail });
     }
 
     response.status(200).json(results.rows);
   });
 };
 
+const getArticle = (request, response) => {
+  const articleId = parseInt(request.params.id);
+  pool.query('SELECT * FROM Article WHERE article_id = $1', [articleId], (error, results) => {
+    if (error) {
+      response.status(401).json({ status: 'error', error: error.detail });
+    }
+    response.status(200).json(results.rows);
+  });
+};
 
 module.exports = {
   createUser,
@@ -328,4 +337,5 @@ module.exports = {
   articleComment,
   gifComment,
   getArtcles,
+  getArticle,
 };
