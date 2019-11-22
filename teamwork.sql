@@ -8,7 +8,7 @@ CREATE TABLE Employee (
   jobRole VARCHAR(50) NOT NULL,
   department VARCHAR(50) NOT NULL,
   address VARCHAR(50) NOT NULL,
-  is_admin BOOLEAN NOT NULL
+  isAdmin BOOLEAN NOT NULL
 );
 
 
