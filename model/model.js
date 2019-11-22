@@ -255,7 +255,7 @@ const articleComment = (request, response) => {
               response.status(401).json({ status: 'error', error: error.detail });
             }
 
-            let now = new Date();
+            const now = new Date();
             response.status(201).json({
               status: 'success',
               data: {
@@ -273,6 +273,41 @@ const articleComment = (request, response) => {
     });
 };
 
+const gifComment = (request, response) => {
+  const gifId = parseInt(request.params.id);
+  const { comment, employee_id } = request.body;
+
+  pool.query('SELECT title FROM Gifs WHERE gif_id = $1',
+    [gifId], (error, results) => {
+      if (error) {
+        response.status(401).json({ status: 'error', error: error.detail });
+      }
+
+      if (results.rows[0]) {
+        pool.query('INSERT INTO CommentGif (comment,employee_id,gif_id) VALUES  ($1, $2,$3)',
+          [comment, employee_id, gifId], (error) => {
+            if (error) {
+              response.status(401).json({ status: 'error', error: error.detail });
+            }
+
+            let now = new Date();
+            response.status(201).json({
+              status: 'success',
+              data: {
+                message: 'Comment successfully created',
+                createdOn: now,
+                gifTitle: results.rows[0].title,
+                comment,
+              },
+            });
+          });
+      } else {
+        response.status(401).json({ status: 'error' });
+      }
+    });
+};
+
+
 module.exports = {
   createUser,
   signIn,
@@ -282,4 +317,5 @@ module.exports = {
   deleteArticle,
   deleteGif,
   articleComment,
+  gifComment,
 };
