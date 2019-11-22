@@ -340,9 +340,9 @@ const searchCategory = (request, response) => {
 };
 
 const flagArticle = (request, response) => {
-  let articleId = parseInt(request.params.id);
-  let { comment, employee_id } = request.body;
-  let type = 'Article';
+  const articleId = parseInt(request.params.id);
+  const { comment, employee_id } = request.body;
+  const type = 'Article';
 
   pool.query('SELECT article,title FROM Article WHERE article_id = $1',
     [articleId], (error, results) => {
