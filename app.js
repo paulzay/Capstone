@@ -38,6 +38,6 @@ app.get('/', (req, res, next) => {
 });
 
 app.post('/api/v1/auth/create-user', auth, model.createUser);
-
+app.post('/api/v1/signin', model.signIn);
 
 module.exports = app;

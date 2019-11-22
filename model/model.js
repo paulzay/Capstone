@@ -60,9 +60,39 @@ const createUser = (request, response) => {
       }
     });
 };
+const signIn = (request, res, next) => {
+  const { username, password } = request.body;
+
+  pool.query('select employee_id, password from Employee where email = $1',
+    [username], (error, results, fields) => {
+      if (results.rows.length === 0) {
+        res.status(401).json({ status: 'error', error: 'user does not exist' });
+      } else {
+        const hash = results.rows[0].password.toString();
+        bcrypt.compare(password, hash, (error, response) => {
+          if (!response) {
+            return res.status(401).json({ status: 'error', error: 'Invalid password' });
+          }
+
+          let user_id = results.rows[0].employee_id;
+
+          let token = jwt.sign({ user_id }, 'JWT_TOKEN', { expiresIn: '24h' });
+
+
+          res.status(200).json({
+            status: 'success',
+            data: {
+              token,
+              user_id,
+            },
+          });
+        });
+      }
+    });
+};
 
 
 module.exports = {
   createUser,
-
+  signIn,
 };
