@@ -329,13 +329,52 @@ const getArticle = (request, response) => {
 const searchCategory = (request, response) => {
   const article = request.query.category;
 
-  pool.query('SELECT * FROM Article WHERE title ILIKE $1 ORDER BY article_id DESC', [`${article  }%`],
+  pool.query('SELECT * FROM Article WHERE title ILIKE $1 ORDER BY article_id DESC', [`${article }%`],
     (error, results) => {
       if (error) {
         response.status(401).json({ status: 'error', error: error.detail });
       }
 
       response.status(200).json(results.rows);
+    });
+};
+
+const flagArticle = (request, response) => {
+  let articleId = parseInt(request.params.id);
+  let { comment, employee_id } = request.body;
+  let type = 'Article';
+
+  pool.query('SELECT article,title FROM Article WHERE article_id = $1',
+    [articleId], (error, results) => {
+      if (error) {
+        response.status(401).json({ status: 'error', error: error.detail });
+      }
+
+      if (results.rows[0]) {
+        let flag = results.rows[0].article;
+        let flag_title = results.rows[0].title;
+
+        pool.query('INSERT INTO Flagged (comment,type,flag,flag_title,type_id,employee_id) VALUES ($1,$2,$3,$4,$5,$6)',
+          [comment, type, flag, flag_title, articleId, employee_id], (error) => {
+            if (error) {
+              response.status(401).json({ status: 'error', error });
+            }
+
+            const now = new Date();
+            response.status(201).json({
+              status: 'success',
+              data: {
+                message: 'Article Reported',
+                createdOn: now,
+                article: flag,
+                articleTitle: flag_title,
+                comment,
+              },
+            });
+          });
+      } else {
+        response.status(401).json({ status: 'error' });
+      }
     });
 };
 
@@ -351,5 +390,6 @@ module.exports = {
   gifComment,
   getArtcles,
   getArticle,
-  searchCategory
+  searchCategory,
+  flagArticle,
 };
